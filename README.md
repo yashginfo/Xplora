@@ -30,9 +30,9 @@ Xplora is an AI-powered travel planning web app that helps budget-conscious trav
 
 ## 🚀 Live Demo
 
-Frontend: [Coming soon]  
-Backend API: [Coming soon]
+Frontend: [https://xplora-ai.netlify.app](https://xplora-ai.netlify.app)  
+Backend API: [https://xplora-backend-menj.onrender.com/docs](https://xplora-backend-menj.onrender.com/docs)
 
 ## 📄 License
 
-MIT License — Copyright (c) 2026 Yashs
+MIT License — Copyright (c) 2026 Yash
