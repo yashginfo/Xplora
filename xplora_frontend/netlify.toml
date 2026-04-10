@@ -1,0 +1,9 @@
+[build]
+  base = "xplora_frontend"
+  publish = "xplora_frontend/dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
