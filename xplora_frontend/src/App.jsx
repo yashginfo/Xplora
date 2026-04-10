@@ -6,8 +6,9 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import SharedTrip from "./pages/SharedTrip";   
-import MyTrips from "./pages/MyTrips";     
+import SharedTrip from "./pages/SharedTrip";
+import MyTrips from "./pages/MyTrips";
+import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -27,7 +28,9 @@ function App() {
             <Dashboard />
           </ProtectedRoute>
         } />
-        <Route path="/shared/:uuid" element={<SharedTrip />} />  {/* ✅ add */}
+        <Route path="/shared/:uuid" element={<SharedTrip />} />
+        {/* Catch-all — must always be last */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
