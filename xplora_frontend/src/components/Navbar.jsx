@@ -128,13 +128,15 @@ const Navbar = () => {
         />
       )}
 
-      {/* Mobile drawer — fixed height layout with logout always at bottom */}
+      {/* Mobile drawer — uses dvh so browser bottom bar is excluded */}
       <div
         className={`fixed top-14 right-0 z-50 w-72 max-w-[90vw] md:hidden flex flex-col transition-transform duration-300 ease-out ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
         style={{
-          height: "calc(100vh - 3.5rem)",
+          // dvh = dynamic viewport height, excludes browser bottom bar on Android Chrome
+          // Falls back to vh for older browsers
+          height: "calc(100dvh - 3.5rem)",
           background: "rgba(15,12,8,0.97)",
           backdropFilter: "blur(20px)",
           borderLeft: "1px solid rgba(255,255,255,0.08)",
@@ -160,7 +162,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Nav links — scrollable middle section */}
+        {/* Nav links + language + logout — all scrollable so nothing ever gets cut off */}
         <div className="flex flex-col flex-1 min-h-0 overflow-y-auto px-3 py-3 gap-1">
           <button
             onClick={() => handleNav("/dashboard")}
@@ -190,7 +192,7 @@ const Navbar = () => {
             Surprise Me
           </button>
 
-          {/* Language selector — limited height so it doesn't push logout off */}
+          {/* Language selector */}
           <div
             className="mt-3 px-1 pt-3 border-t"
             style={{ borderColor: "rgba(255,255,255,0.08)" }}
@@ -198,26 +200,25 @@ const Navbar = () => {
             <p className="text-[10px] font-bold tracking-widest text-white/20 uppercase px-3 mb-2">
               Language
             </p>
-            <div className="max-h-36 overflow-y-auto">
-              <LanguageSelector mobileFullWidth />
-            </div>
+            {/* Removed max-h-36 so all languages show without inner scroll */}
+            <LanguageSelector mobileFullWidth />
           </div>
-        </div>
 
-        {/* Logout — always pinned at bottom */}
-        <div
-          className="px-3 py-4 border-t shrink-0"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
-        >
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/8 transition-all"
+          {/* ✅ Logout — now inside scrollable area, always reachable */}
+          <div
+            className="mt-3 pt-3 border-t"
+            style={{ borderColor: "rgba(255,255,255,0.08)" }}
           >
-            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            {logoutText}
-          </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/8 transition-all"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              {logoutText}
+            </button>
+          </div>
         </div>
       </div>
 
