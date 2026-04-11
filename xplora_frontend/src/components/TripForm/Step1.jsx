@@ -22,7 +22,6 @@ const InputField = ({
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      // min-h-12 ensures 48px touch target on mobile
       className={`w-full border rounded-xl px-4 py-3 min-h-12 text-sm text-white/85 placeholder-white/20 focus:outline-none transition-all duration-200
         ${
           invalid
@@ -55,6 +54,16 @@ const Step1 = ({ formData, updateForm, onNext }) => {
   // ── Local timezone date fix (IST safe) ─────────────────
   const today = (() => {
     const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  })();
+
+  // ── Max date = today + 1 month ──────────────────────────
+  const maxDate = (() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
@@ -140,13 +149,14 @@ const Step1 = ({ formData, updateForm, onNext }) => {
         {/* Dates — stack on very small screens, grid on sm+ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
           {[
-            { label: startLabel, field: "startDate", min: today },
+            { label: startLabel, field: "startDate", min: today, max: maxDate },
             {
               label: endLabel,
               field: "endDate",
               min: formData.startDate || today,
+              max: maxDate,
             },
-          ].map(({ label, field, min }) => (
+          ].map(({ label, field, min, max }) => (
             <div key={field} className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold tracking-widest text-white/30 uppercase">
                 {label}
@@ -154,9 +164,9 @@ const Step1 = ({ formData, updateForm, onNext }) => {
               <input
                 type="date"
                 min={min}
+                max={max}
                 value={formData[field]}
                 onChange={(e) => updateForm({ [field]: e.target.value })}
-                // min-h-12 = 48px touch target
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 min-h-12 text-sm text-white/85 focus:outline-none focus:border-amber-400/50 focus:bg-white/8 transition-all duration-200"
                 style={{ colorScheme: "dark" }}
               />
