@@ -1,6 +1,5 @@
-// SIGNUP — Mobile Responsive
-// Mobile: single column, compact header strip + full-width glass form
-// Desktop (lg+): left image panel + right golden glass form panel
+// SIGNUP — Mobile: photo bg + dark overlay + content directly on it
+// Desktop: left photo panel + right golden glass form panel
 
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -9,13 +8,12 @@ import client from "../api/client";
 import useAuth from "../context/useAuth";
 import { useTravelBackground } from "../hooks/useTravelBackground";
 
-// ── InputField ─────────────────────────────────────────────────────────────────
 const InputField = ({
   label, name, type = "text", value, onChange, onBlur,
   error, isPassword = false, showToggle, onToggle,
 }) => (
   <div className="flex flex-col gap-1">
-    <label className="text-[10px] font-bold tracking-widest text-amber-400/50 uppercase">
+    <label className="text-[10px] font-bold tracking-widest text-amber-400/70 uppercase">
       {label}
     </label>
     <div className="relative">
@@ -27,10 +25,10 @@ const InputField = ({
         onBlur={onBlur}
         placeholder={`Enter your ${label.toLowerCase()}`}
         className={`w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all duration-200
-          text-white/90 placeholder-amber-200/20 border
+          text-white placeholder-white/30 border
           ${error
-            ? "border-red-500/40 bg-red-500/5 focus:border-red-500/60"
-            : "border-amber-400/20 bg-amber-400/8 focus:border-amber-400/60 focus:bg-amber-400/12"
+            ? "border-red-500/50 bg-red-500/10 focus:border-red-500/70"
+            : "border-white/20 bg-white/10 focus:border-amber-400/60 focus:bg-white/15"
           }`}
         style={{ backdropFilter: "blur(8px)" }}
       />
@@ -38,7 +36,7 @@ const InputField = ({
         <button
           type="button"
           onClick={onToggle}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400/30 hover:text-amber-400/70 transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
         >
           {showToggle ? (
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -64,11 +62,9 @@ const InputField = ({
   </div>
 );
 
-// ── Signup Page ────────────────────────────────────────────────────────────────
 const Signup = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const bg = useTravelBackground();
 
   const [form, setForm]                   = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -114,7 +110,6 @@ const Signup = () => {
     Object.keys(form).forEach((f) => { const err = validate(f, form[f]); if (err) allErrors[f] = err; });
     setErrors(allErrors);
     if (Object.keys(allErrors).length > 0) return;
-
     setLoading(true);
     try {
       const res = await client.post("/auth/register", { name: form.name, email: form.email, password: form.password });
@@ -153,19 +148,18 @@ const Signup = () => {
   });
 
   const strengthChecks = [
-    { check: form.password.length >= 8,                                                   label: "8+ characters"     },
-    { check: /[A-Z]/.test(form.password),                                                 label: "Uppercase letter"  },
-    { check: /[0-9]/.test(form.password),                                                 label: "One number"        },
-    { check: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(form.password),                 label: "Special character" },
+    { check: form.password.length >= 8,                                               label: "8+ characters"     },
+    { check: /[A-Z]/.test(form.password),                                             label: "Uppercase letter"  },
+    { check: /[0-9]/.test(form.password),                                             label: "One number"        },
+    { check: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(form.password),             label: "Special character" },
   ];
 
   return (
-    // ── Root: flex column on mobile (header strip on top, form below), flex row on desktop ──
     <div className="h-screen w-screen flex flex-col lg:flex-row overflow-hidden relative">
 
-      {/* ── FULL-SCREEN BACKGROUND IMAGE ── */}
+      {/* Background image — full screen */}
       <div
-        className={`absolute inset-0 bg-linear-to-br from-stone-800 via-stone-900 to-stone-800 transition-opacity duration-700 z-0 ${bg.loading ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-stone-900 transition-opacity duration-700 z-0 ${bg.loading ? "opacity-100" : "opacity-0"}`}
       />
       <div
         className="absolute inset-0 z-0 transition-opacity duration-1000"
@@ -176,125 +170,56 @@ const Signup = () => {
           opacity: bg.loading ? 0 : 1,
         }}
       />
-      <div className="absolute inset-0 z-0 bg-black/40" />
+      {/* Mobile overlay */}
+      <div className="absolute inset-0 z-0 bg-black/55 lg:hidden" />
+      {/* Desktop overlay */}
+      <div className="absolute inset-0 z-0 bg-black/35 hidden lg:block" />
 
-      {/* ── MOBILE HEADER STRIP (visible only on mobile) ──
-          Compact branding + tagline above the glass form panel. */}
-      <div className="lg:hidden relative z-10 shrink-0 px-6 pt-8 pb-5">
-        <div className="absolute inset-0 bg-linear-to-b from-black/60 via-black/30 to-transparent pointer-events-none" />
+      {/* ── MOBILE LAYOUT ── */}
+      <div className="lg:hidden relative z-10 flex flex-col h-full overflow-y-auto">
 
-        {/* Logo */}
-        <div className="relative z-10 cursor-pointer mb-3" onClick={() => navigate("/")}>
-          <span className="font-serif text-white text-xl font-bold tracking-wide">
-            Xplo<span className="text-amber-400">ra</span>
-          </span>
-        </div>
-
-        {/* Tagline */}
-        <p className="relative z-10 font-serif text-white text-2xl font-black leading-snug mb-3 drop-shadow-lg">
-          The world is<br />
-          <span className="text-amber-400 italic">yours to explore.</span>
-        </p>
-
-        {/* Stats — compact horizontal row */}
-        <div className="relative z-10 flex gap-6">
-          {[["10K+", "Trips"], ["500+", "Destinations"], ["4.9★", "Rating"]].map(([val, label]) => (
-            <div key={label}>
-              <p className="font-serif text-amber-400 font-bold text-sm">{val}</p>
-              <p className="text-white/40 text-[10px] mt-0.5">{label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── LEFT PANEL — desktop only ── */}
-      <div className="hidden lg:flex w-1/2 relative z-10 flex-col justify-between p-10 shrink-0">
-        <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/20 to-transparent pointer-events-none" />
-
-        <div className="relative z-10 cursor-pointer" onClick={() => navigate("/")}>
-          <span className="font-serif text-white text-2xl font-bold tracking-wide">
-            Xplo<span className="text-amber-400">ra</span>
-          </span>
-        </div>
-
-        <div className="relative z-10">
-          <p className="font-serif text-white text-4xl font-black leading-snug max-w-sm mb-3 drop-shadow-lg">
+        {/* Top branding */}
+        <div className="px-6 pt-10 pb-5">
+          <div className="cursor-pointer mb-4" onClick={() => navigate("/")}>
+            <span className="font-serif text-white text-2xl font-bold tracking-wide">
+              Xplo<span className="text-amber-400">ra</span>
+            </span>
+          </div>
+          <p className="font-serif text-white text-3xl font-black leading-snug mb-4 drop-shadow-lg">
             The world is<br />
             <span className="text-amber-400 italic">yours to explore.</span>
           </p>
-          <p className="text-white/50 text-sm mb-8 font-light">
-            Join thousands of travellers planning smarter trips with AI.
-          </p>
-          <div className="flex gap-8">
-            {[["10K+", "Trips Planned"], ["500+", "Destinations"], ["4.9★", "Rating"]].map(([val, label]) => (
+          <div className="flex gap-7">
+            {[["10K+", "Trips"], ["500+", "Destinations"], ["4.9★", "Rating"]].map(([val, label]) => (
               <div key={label}>
-                <p className="font-serif text-amber-400 font-bold text-lg">{val}</p>
-                <p className="text-white/35 text-xs mt-0.5">{label}</p>
+                <p className="font-serif text-amber-400 font-bold text-sm">{val}</p>
+                <p className="text-white/50 text-[10px] mt-0.5">{label}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {bg.photographer && !bg.loading && (
-          <a
-            href={`${bg.photographerUrl}?utm_source=xplora&utm_medium=referral`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative z-10 text-[10px] text-white/25 hover:text-white/50 transition-colors self-start"
+        {/* Form card */}
+        <div className="flex-1 px-5 pb-10">
+          <div
+            className="rounded-2xl p-6"
+            style={{
+              background: "rgba(0,0,0,0.45)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+            }}
           >
-            Photo by {bg.photographer} · Unsplash
-          </a>
-        )}
-      </div>
-
-      {/* ── FORM PANEL — full width on mobile, half width on desktop ──
-          flex-1 ensures it fills the remaining vertical space below the mobile header. */}
-      <div className="w-full lg:w-1/2 relative z-10 flex flex-col flex-1 lg:flex-none overflow-hidden shrink-0">
-
-        {/* Golden frosted glass background */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "linear-gradient(135deg, rgba(251,191,36,0.22) 0%, rgba(217,119,6,0.28) 40%, rgba(161,98,7,0.32) 100%)",
-            backdropFilter: "blur(18px) saturate(1.4)",
-            WebkitBackdropFilter: "blur(18px) saturate(1.4)",
-            borderLeft: "1px solid rgba(251,191,36,0.18)",
-          }}
-        />
-
-        {/* Depth shimmer layers */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse at 60% 25%, rgba(251,191,36,0.18) 0%, transparent 60%), radial-gradient(ellipse at 30% 80%, rgba(245,158,11,0.14) 0%, transparent 55%)",
-          }}
-        />
-
-        {/* Top border glow */}
-        <div
-          className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(251,191,36,0.5), transparent)" }}
-        />
-
-        {/* Scrollable form — responsive horizontal padding */}
-        <div className="relative z-10 flex-1 overflow-y-auto scrollbar-hide px-5 sm:px-8">
-          <div className="w-full max-w-sm mx-auto py-6 lg:py-8">
-
-            {/* Header */}
-            <div className="mb-4 lg:mb-5">
+            <div className="mb-4">
               <p className="text-amber-300 text-[10px] font-bold tracking-widest uppercase mb-1.5">✦ Get Started</p>
-              <h1 className="font-serif text-white text-3xl sm:text-4xl font-black leading-tight drop-shadow-lg">
+              <h1 className="font-serif text-white text-3xl font-black leading-tight">
                 Create your<br />account.
               </h1>
             </div>
 
             {/* Toggle */}
             <div
-              className="flex rounded-xl p-1 mb-4 lg:mb-5 border"
-              style={{
-                background: "rgba(251,191,36,0.08)",
-                borderColor: "rgba(251,191,36,0.25)",
-              }}
+              className="flex rounded-xl p-1 mb-4 border"
+              style={{ background: "rgba(255,255,255,0.07)", borderColor: "rgba(255,255,255,0.15)" }}
             >
               <button className="flex-1 py-2.5 rounded-lg text-sm font-bold bg-amber-400 text-stone-900 shadow-lg shadow-amber-400/30">
                 Sign Up
@@ -307,21 +232,169 @@ const Signup = () => {
               </button>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <InputField label="Full Name"        name="name"            value={form.name}            onChange={handleChange} onBlur={handleBlur} error={errors.name} />
               <InputField label="Email Address"    name="email"           type="email" value={form.email}           onChange={handleChange} onBlur={handleBlur} error={errors.email} />
               <InputField label="Password"         name="password"        value={form.password}        onChange={handleChange} onBlur={handleBlur} error={errors.password}        isPassword showToggle={showPassword} onToggle={() => setShowPassword(p => !p)} />
               <InputField label="Confirm Password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} onBlur={handleBlur} error={errors.confirmPassword} isPassword showToggle={showConfirm}  onToggle={() => setShowConfirm(p => !p)} />
 
-              {/* Password strength */}
               {form.password && !errors.password && (
                 <div
                   className="rounded-xl px-3 py-2 border"
-                  style={{
-                    background: "rgba(251,191,36,0.07)",
-                    borderColor: "rgba(251,191,36,0.18)",
-                  }}
+                  style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.12)" }}
+                >
+                  <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Password strength</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                    {strengthChecks.map(({ check, label }) => (
+                      <div key={label} className="flex items-center gap-1.5">
+                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${check ? "bg-emerald-400" : "bg-white/20"}`} />
+                        <span className={`text-[10px] ${check ? "text-emerald-400" : "text-white/40"}`}>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-1 w-full bg-amber-400 hover:bg-amber-300 text-stone-900 py-3 rounded-xl font-bold text-sm tracking-wide transition-all disabled:opacity-50"
+              >
+                {loading ? "Creating account..." : "Create Account →"}
+              </button>
+            </form>
+
+            <div className="flex items-center gap-3 my-4">
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-xs text-white/40 font-medium">or continue with</span>
+              <div className="flex-1 h-px bg-white/15" />
+            </div>
+
+            <button
+              onClick={() => handleGoogleLogin()}
+              disabled={googleLoading}
+              className="w-full flex items-center justify-center gap-3 rounded-xl py-3 text-sm font-medium text-white/80 hover:text-white transition-all disabled:opacity-50"
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)" }}
+            >
+              {googleLoading ? (
+                <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-4 h-4" />
+              )}
+              {googleLoading ? "Connecting..." : "Continue with Google"}
+            </button>
+
+            <p className="text-center text-xs text-white/40 mt-4">
+              Already have an account?{" "}
+              <Link to="/login" className="text-amber-400 font-semibold hover:text-amber-300 transition-colors">
+                Sign in
+              </Link>
+            </p>
+          </div>
+
+          {bg.photographer && !bg.loading && (
+            <a
+              href={`${bg.photographerUrl}?utm_source=xplora&utm_medium=referral`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center text-[10px] text-white/25 hover:text-white/45 transition-colors mt-4"
+            >
+              Photo by {bg.photographer} · Unsplash
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* ── DESKTOP LAYOUT ── */}
+      {/* Left panel */}
+      <div className="hidden lg:flex w-1/2 relative z-10 flex-col justify-between p-10 shrink-0">
+        <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/20 to-transparent pointer-events-none" />
+        <div className="relative z-10 cursor-pointer" onClick={() => navigate("/")}>
+          <span className="font-serif text-white text-2xl font-bold tracking-wide">
+            Xplo<span className="text-amber-400">ra</span>
+          </span>
+        </div>
+        <div className="relative z-10">
+          <p className="font-serif text-white text-4xl font-black leading-snug max-w-sm mb-3 drop-shadow-lg">
+            The world is<br />
+            <span className="text-amber-400 italic">yours to explore.</span>
+          </p>
+          <p className="text-white/50 text-sm mb-8 font-light">Join thousands of travellers planning smarter trips with AI.</p>
+          <div className="flex gap-8">
+            {[["10K+", "Trips Planned"], ["500+", "Destinations"], ["4.9★", "Rating"]].map(([val, label]) => (
+              <div key={label}>
+                <p className="font-serif text-amber-400 font-bold text-lg">{val}</p>
+                <p className="text-white/35 text-xs mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        {bg.photographer && !bg.loading && (
+          <a
+            href={`${bg.photographerUrl}?utm_source=xplora&utm_medium=referral`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative z-10 text-[10px] text-white/25 hover:text-white/50 transition-colors self-start"
+          >
+            Photo by {bg.photographer} · Unsplash
+          </a>
+        )}
+      </div>
+
+      {/* Right panel — desktop golden glass (reduced opacity) */}
+      <div className="hidden lg:flex w-1/2 relative z-10 flex-col overflow-hidden shrink-0">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(135deg, rgba(251,191,36,0.16) 0%, rgba(217,119,6,0.20) 40%, rgba(161,98,7,0.24) 100%)",
+            backdropFilter: "blur(16px) saturate(1.3)",
+            WebkitBackdropFilter: "blur(16px) saturate(1.3)",
+            borderLeft: "1px solid rgba(251,191,36,0.15)",
+          }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 60% 25%, rgba(251,191,36,0.12) 0%, transparent 60%)" }}
+        />
+        <div
+          className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+          style={{ background: "linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent)" }}
+        />
+
+        <div className="relative z-10 flex-1 overflow-y-auto px-8">
+          <div className="w-full max-w-sm mx-auto py-8">
+            <div className="mb-5">
+              <p className="text-amber-300 text-[10px] font-bold tracking-widest uppercase mb-1.5">✦ Get Started</p>
+              <h1 className="font-serif text-white text-4xl font-black leading-tight drop-shadow-lg">
+                Create your<br />account.
+              </h1>
+            </div>
+
+            <div
+              className="flex rounded-xl p-1 mb-5 border"
+              style={{ background: "rgba(251,191,36,0.08)", borderColor: "rgba(251,191,36,0.25)" }}
+            >
+              <button className="flex-1 py-2.5 rounded-lg text-sm font-bold bg-amber-400 text-stone-900 shadow-lg shadow-amber-400/30">
+                Sign Up
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white/50 hover:text-white/80 transition-colors"
+              >
+                Log In
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <InputField label="Full Name"        name="name"            value={form.name}            onChange={handleChange} onBlur={handleBlur} error={errors.name} />
+              <InputField label="Email Address"    name="email"           type="email" value={form.email}           onChange={handleChange} onBlur={handleBlur} error={errors.email} />
+              <InputField label="Password"         name="password"        value={form.password}        onChange={handleChange} onBlur={handleBlur} error={errors.password}        isPassword showToggle={showPassword} onToggle={() => setShowPassword(p => !p)} />
+              <InputField label="Confirm Password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} onBlur={handleBlur} error={errors.confirmPassword} isPassword showToggle={showConfirm}  onToggle={() => setShowConfirm(p => !p)} />
+
+              {form.password && !errors.password && (
+                <div
+                  className="rounded-xl px-3 py-2 border"
+                  style={{ background: "rgba(251,191,36,0.07)", borderColor: "rgba(251,191,36,0.18)" }}
                 >
                   <p className="text-[9px] font-bold text-amber-400/40 uppercase tracking-widest mb-1.5">Password strength</p>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -344,22 +417,17 @@ const Signup = () => {
               </button>
             </form>
 
-            {/* Divider */}
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 h-px" style={{ background: "rgba(251,191,36,0.2)" }} />
               <span className="text-xs text-amber-200/40 font-medium">or continue with</span>
               <div className="flex-1 h-px" style={{ background: "rgba(251,191,36,0.2)" }} />
             </div>
 
-            {/* Google OAuth */}
             <button
               onClick={() => handleGoogleLogin()}
               disabled={googleLoading}
-              className="w-full flex items-center justify-center gap-3 rounded-xl py-3 text-sm font-medium text-white/70 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: "rgba(251,191,36,0.08)",
-                border: "1px solid rgba(251,191,36,0.22)",
-              }}
+              className="w-full flex items-center justify-center gap-3 rounded-xl py-3 text-sm font-medium text-white/70 hover:text-white transition-all disabled:opacity-50"
+              style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.22)" }}
               onMouseEnter={e => e.currentTarget.style.background = "rgba(251,191,36,0.15)"}
               onMouseLeave={e => e.currentTarget.style.background = "rgba(251,191,36,0.08)"}
             >
@@ -371,26 +439,12 @@ const Signup = () => {
               {googleLoading ? "Connecting..." : "Continue with Google"}
             </button>
 
-            {/* Footer */}
             <p className="text-center text-xs text-amber-200/30 mt-4">
               Already have an account?{" "}
               <Link to="/login" className="text-amber-400 font-semibold hover:text-amber-300 transition-colors">
                 Sign in
               </Link>
             </p>
-
-            {/* Unsplash credit — mobile only, shown at the bottom of the form */}
-            {bg.photographer && !bg.loading && (
-              <a
-                href={`${bg.photographerUrl}?utm_source=xplora&utm_medium=referral`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="lg:hidden block text-center text-[10px] text-white/20 hover:text-white/40 transition-colors mt-4"
-              >
-                Photo by {bg.photographer} · Unsplash
-              </a>
-            )}
-
           </div>
         </div>
       </div>

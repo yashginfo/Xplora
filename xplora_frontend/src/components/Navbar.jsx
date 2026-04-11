@@ -169,7 +169,7 @@ const Navbar = () => {
         </div>
 
         {/* Nav links */}
-        <div className="flex flex-col flex-1 px-3 py-4 gap-1 overflow-y-auto">
+        <div className="flex flex-col flex-1 px-3 py-4 gap-1 overflow-y-auto min-h-0">
           <button
             onClick={() => handleNav("/dashboard")}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all text-left"

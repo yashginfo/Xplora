@@ -1,6 +1,5 @@
-// LOGIN VERSION 1 — Mobile Responsive
-// Mobile: single column, compact header strip + full-width glass form
-// Desktop (lg+): left image panel + right golden glass form panel
+// LOGIN — Mobile: photo bg + dark overlay + content directly on it
+// Desktop: left photo panel + right golden glass form panel
 
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -9,13 +8,12 @@ import client from "../api/client";
 import useAuth from "../context/useAuth";
 import { useTravelBackground } from "../hooks/useTravelBackground";
 
-// ── InputField ─────────────────────────────────────────────────────────────────
 const InputField = ({
   label, name, type = "text", value, onChange, onBlur,
   error, isPassword = false, showToggle, onToggle,
 }) => (
   <div className="flex flex-col gap-1.5">
-    <label className="text-[10px] font-bold tracking-widest text-amber-400/50 uppercase">
+    <label className="text-[10px] font-bold tracking-widest text-amber-400/70 uppercase">
       {label}
     </label>
     <div className="relative">
@@ -27,10 +25,10 @@ const InputField = ({
         onBlur={onBlur}
         placeholder={`Enter your ${label.toLowerCase()}`}
         className={`w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-200
-          text-white/90 placeholder-amber-200/20 border
+          text-white placeholder-white/30 border
           ${error
-            ? "border-red-500/40 bg-red-500/5 focus:border-red-500/60"
-            : "border-amber-400/20 bg-amber-400/8 focus:border-amber-400/60 focus:bg-amber-400/12"
+            ? "border-red-500/50 bg-red-500/10 focus:border-red-500/70"
+            : "border-white/20 bg-white/10 focus:border-amber-400/60 focus:bg-white/15"
           }`}
         style={{ backdropFilter: "blur(8px)" }}
       />
@@ -38,7 +36,7 @@ const InputField = ({
         <button
           type="button"
           onClick={onToggle}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400/30 hover:text-amber-400/70 transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
         >
           {showToggle ? (
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -64,11 +62,9 @@ const InputField = ({
   </div>
 );
 
-// ── Login Page ─────────────────────────────────────────────────────────────────
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const bg = useTravelBackground();
 
   const [form, setForm]                   = useState({ email: "", password: "" });
@@ -98,7 +94,6 @@ const Login = () => {
     Object.keys(form).forEach((f) => { const err = validate(f, form[f]); if (err) allErrors[f] = err; });
     setErrors(allErrors);
     if (Object.keys(allErrors).length > 0) return;
-
     setLoading(true);
     try {
       const res = await client.post("/auth/login", { email: form.email, password: form.password });
@@ -137,12 +132,11 @@ const Login = () => {
   });
 
   return (
-    // ── Root: full screen, flex row on lg, single column on mobile ──
     <div className="h-screen w-screen flex flex-col lg:flex-row overflow-hidden relative">
 
-      {/* ── FULL-SCREEN BACKGROUND IMAGE ── */}
+      {/* Background image — full screen, shared for both mobile and desktop */}
       <div
-        className={`absolute inset-0 bg-linear-to-br from-stone-800 via-stone-900 to-stone-800 transition-opacity duration-700 z-0 ${bg.loading ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-stone-900 transition-opacity duration-700 z-0 ${bg.loading ? "opacity-100" : "opacity-0"}`}
       />
       <div
         className="absolute inset-0 z-0 transition-opacity duration-1000"
@@ -153,49 +147,130 @@ const Login = () => {
           opacity: bg.loading ? 0 : 1,
         }}
       />
-      <div className="absolute inset-0 z-0 bg-black/40" />
+      {/* Mobile overlay — darker for readability */}
+      <div className="absolute inset-0 z-0 bg-black/55 lg:hidden" />
+      {/* Desktop overlay — lighter */}
+      <div className="absolute inset-0 z-0 bg-black/35 hidden lg:block" />
 
-      {/* ── MOBILE HEADER STRIP (visible only on mobile) ──
-          Replaces the left panel branding on small screens.
-          Sits at the top of the viewport above the form. */}
-      <div className="lg:hidden relative z-10 shrink-0 px-6 pt-8 pb-5">
-        {/* Gradient to help legibility on mobile header area */}
-        <div className="absolute inset-0 bg-linear-to-b from-black/60 via-black/30 to-transparent pointer-events-none" />
+      {/* ── MOBILE LAYOUT ── full screen, content over photo */}
+      <div className="lg:hidden relative z-10 flex flex-col h-full overflow-y-auto">
 
-        {/* Logo */}
-        <div className="relative z-10 cursor-pointer mb-4" onClick={() => navigate("/")}>
-          <span className="font-serif text-white text-xl font-bold tracking-wide">
-            Xplo<span className="text-amber-400">ra</span>
-          </span>
+        {/* Top branding */}
+        <div className="px-6 pt-10 pb-6">
+          <div className="cursor-pointer mb-5" onClick={() => navigate("/")}>
+            <span className="font-serif text-white text-2xl font-bold tracking-wide">
+              Xplo<span className="text-amber-400">ra</span>
+            </span>
+          </div>
+          <p className="font-serif text-white text-3xl font-black leading-snug mb-4 drop-shadow-lg">
+            Every journey begins<br />
+            <span className="text-amber-400 italic">with a single step.</span>
+          </p>
+          <div className="flex gap-7">
+            {[["10K+", "Trips"], ["500+", "Destinations"], ["4.9★", "Rating"]].map(([val, label]) => (
+              <div key={label}>
+                <p className="font-serif text-amber-400 font-bold text-sm">{val}</p>
+                <p className="text-white/50 text-[10px] mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Tagline */}
-        <p className="relative z-10 font-serif text-white text-2xl font-black leading-snug mb-3 drop-shadow-lg">
-          Every journey begins<br />
-          <span className="text-amber-400 italic">with a single step.</span>
-        </p>
-
-        {/* Stats — compact horizontal row */}
-        <div className="relative z-10 flex gap-6">
-          {[["10K+", "Trips"], ["500+", "Destinations"], ["4.9★", "Rating"]].map(([val, label]) => (
-            <div key={label}>
-              <p className="font-serif text-amber-400 font-bold text-sm">{val}</p>
-              <p className="text-white/40 text-[10px] mt-0.5">{label}</p>
+        {/* Form area — subtle glass card on mobile */}
+        <div className="flex-1 px-5 pb-10">
+          <div
+            className="rounded-2xl p-6"
+            style={{
+              background: "rgba(0,0,0,0.45)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+            }}
+          >
+            <div className="mb-5">
+              <p className="text-amber-300 text-[10px] font-bold tracking-widest uppercase mb-2">✦ Welcome Back</p>
+              <h1 className="font-serif text-white text-3xl font-black leading-tight">
+                Sign in to<br />Xplora.
+              </h1>
             </div>
-          ))}
+
+            {/* Toggle */}
+            <div
+              className="flex rounded-xl p-1 mb-5 border"
+              style={{ background: "rgba(255,255,255,0.07)", borderColor: "rgba(255,255,255,0.15)" }}
+            >
+              <button
+                onClick={() => navigate("/signup")}
+                className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white/50 hover:text-white/80 transition-colors"
+              >
+                Sign Up
+              </button>
+              <button className="flex-1 py-2.5 rounded-lg text-sm font-bold bg-amber-400 text-stone-900 shadow-lg shadow-amber-400/30">
+                Log In
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <InputField label="Email Address" name="email" type="email" value={form.email} onChange={handleChange} onBlur={handleBlur} error={errors.email} />
+              <InputField label="Password" name="password" value={form.password} onChange={handleChange} onBlur={handleBlur} error={errors.password} isPassword showToggle={showPassword} onToggle={() => setShowPassword(p => !p)} />
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-1 w-full bg-amber-400 hover:bg-amber-300 text-stone-900 py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all disabled:opacity-50"
+              >
+                {loading ? "Signing in..." : "Sign In →"}
+              </button>
+            </form>
+
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-xs text-white/40 font-medium">or continue with</span>
+              <div className="flex-1 h-px bg-white/15" />
+            </div>
+
+            <button
+              onClick={() => handleGoogleLogin()}
+              disabled={googleLoading}
+              className="w-full flex items-center justify-center gap-3 rounded-xl py-3 text-sm font-medium text-white/80 hover:text-white transition-all disabled:opacity-50"
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)" }}
+            >
+              {googleLoading ? (
+                <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-4 h-4" />
+              )}
+              {googleLoading ? "Connecting..." : "Continue with Google"}
+            </button>
+
+            <p className="text-center text-xs text-white/40 mt-5">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-amber-400 font-semibold hover:text-amber-300 transition-colors">
+                Create one
+              </Link>
+            </p>
+          </div>
+
+          {bg.photographer && !bg.loading && (
+            <a
+              href={`${bg.photographerUrl}?utm_source=xplora&utm_medium=referral`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center text-[10px] text-white/25 hover:text-white/45 transition-colors mt-4"
+            >
+              Photo by {bg.photographer} · Unsplash
+            </a>
+          )}
         </div>
       </div>
 
-      {/* ── LEFT PANEL — desktop only ── */}
+      {/* ── DESKTOP LAYOUT ── */}
+      {/* Left panel */}
       <div className="hidden lg:flex w-1/2 relative z-10 flex-col justify-between p-10 shrink-0">
         <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/20 to-transparent pointer-events-none" />
-
         <div className="relative z-10 cursor-pointer" onClick={() => navigate("/")}>
           <span className="font-serif text-white text-2xl font-bold tracking-wide">
             Xplo<span className="text-amber-400">ra</span>
           </span>
         </div>
-
         <div className="relative z-10">
           <p className="font-serif text-white text-4xl font-black leading-snug max-w-sm mb-3 drop-shadow-lg">
             Every journey begins<br />
@@ -211,7 +286,6 @@ const Login = () => {
             ))}
           </div>
         </div>
-
         {bg.photographer && !bg.loading && (
           <a
             href={`${bg.photographerUrl}?utm_source=xplora&utm_medium=referral`}
@@ -224,55 +298,40 @@ const Login = () => {
         )}
       </div>
 
-      {/* ── FORM PANEL — full width on mobile, half width on desktop ──
-          On mobile: grows to fill remaining screen height below the header strip,
-          with the golden glass panel stretching to fill it. */}
-      <div className="w-full lg:w-1/2 relative z-10 flex flex-col flex-1 lg:flex-none overflow-hidden shrink-0">
-
-        {/* Golden frosted glass background */}
+      {/* Right panel — desktop golden glass (reduced opacity) */}
+      <div className="hidden lg:flex w-1/2 relative z-10 flex-col overflow-hidden shrink-0">
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(135deg, rgba(251,191,36,0.22) 0%, rgba(217,119,6,0.28) 40%, rgba(161,98,7,0.32) 100%)",
-            backdropFilter: "blur(18px) saturate(1.4)",
-            WebkitBackdropFilter: "blur(18px) saturate(1.4)",
-            borderLeft: "1px solid rgba(251,191,36,0.18)",
+            background: "linear-gradient(135deg, rgba(251,191,36,0.16) 0%, rgba(217,119,6,0.20) 40%, rgba(161,98,7,0.24) 100%)",
+            backdropFilter: "blur(16px) saturate(1.3)",
+            WebkitBackdropFilter: "blur(16px) saturate(1.3)",
+            borderLeft: "1px solid rgba(251,191,36,0.15)",
           }}
         />
-
-        {/* Depth shimmer layers */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "radial-gradient(ellipse at 60% 30%, rgba(251,191,36,0.18) 0%, transparent 65%), radial-gradient(ellipse at 30% 80%, rgba(245,158,11,0.14) 0%, transparent 60%)",
+            background: "radial-gradient(ellipse at 60% 30%, rgba(251,191,36,0.12) 0%, transparent 65%)",
           }}
         />
-
-        {/* Top border glow */}
         <div
           className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(251,191,36,0.5), transparent)" }}
+          style={{ background: "linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent)" }}
         />
 
-        {/* Scrollable form — centered content, responsive padding */}
-        <div className="relative z-10 flex-1 overflow-y-auto scrollbar-hide flex items-center justify-center px-5 sm:px-8 py-8 lg:py-10">
+        <div className="relative z-10 flex-1 overflow-y-auto flex items-center justify-center px-8 py-10">
           <div className="w-full max-w-sm">
-
-            {/* Header */}
-            <div className="mb-6 lg:mb-7">
+            <div className="mb-7">
               <p className="text-amber-300 text-[10px] font-bold tracking-widest uppercase mb-2">✦ Welcome Back</p>
-              <h1 className="font-serif text-white text-3xl sm:text-4xl font-black leading-tight drop-shadow-lg">
+              <h1 className="font-serif text-white text-4xl font-black leading-tight drop-shadow-lg">
                 Sign in to<br />Xplora.
               </h1>
             </div>
 
-            {/* Sign Up / Log In toggle */}
             <div
-              className="flex rounded-xl p-1 mb-6 lg:mb-7 border"
-              style={{
-                background: "rgba(251,191,36,0.08)",
-                borderColor: "rgba(251,191,36,0.25)",
-              }}
+              className="flex rounded-xl p-1 mb-7 border"
+              style={{ background: "rgba(251,191,36,0.08)", borderColor: "rgba(251,191,36,0.25)" }}
             >
               <button
                 onClick={() => navigate("/signup")}
@@ -285,17 +344,9 @@ const Login = () => {
               </button>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <InputField
-                label="Email Address" name="email" type="email"
-                value={form.email} onChange={handleChange} onBlur={handleBlur} error={errors.email}
-              />
-              <InputField
-                label="Password" name="password"
-                value={form.password} onChange={handleChange} onBlur={handleBlur} error={errors.password}
-                isPassword showToggle={showPassword} onToggle={() => setShowPassword(p => !p)}
-              />
+              <InputField label="Email Address" name="email" type="email" value={form.email} onChange={handleChange} onBlur={handleBlur} error={errors.email} />
+              <InputField label="Password" name="password" value={form.password} onChange={handleChange} onBlur={handleBlur} error={errors.password} isPassword showToggle={showPassword} onToggle={() => setShowPassword(p => !p)} />
               <button
                 type="submit"
                 disabled={loading}
@@ -305,22 +356,17 @@ const Login = () => {
               </button>
             </form>
 
-            {/* Divider */}
             <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-px" style={{ background: "rgba(251,191,36,0.2)" }} />
               <span className="text-xs text-amber-200/40 font-medium">or continue with</span>
               <div className="flex-1 h-px" style={{ background: "rgba(251,191,36,0.2)" }} />
             </div>
 
-            {/* Google OAuth */}
             <button
               onClick={() => handleGoogleLogin()}
               disabled={googleLoading}
-              className="w-full flex items-center justify-center gap-3 rounded-xl py-3 text-sm font-medium text-white/70 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: "rgba(251,191,36,0.08)",
-                border: "1px solid rgba(251,191,36,0.22)",
-              }}
+              className="w-full flex items-center justify-center gap-3 rounded-xl py-3 text-sm font-medium text-white/70 hover:text-white transition-all disabled:opacity-50"
+              style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.22)" }}
               onMouseEnter={e => e.currentTarget.style.background = "rgba(251,191,36,0.15)"}
               onMouseLeave={e => e.currentTarget.style.background = "rgba(251,191,36,0.08)"}
             >
@@ -332,25 +378,12 @@ const Login = () => {
               {googleLoading ? "Connecting..." : "Continue with Google"}
             </button>
 
-            {/* Footer */}
             <p className="text-center text-xs text-amber-200/30 mt-6">
               Don't have an account?{" "}
               <Link to="/signup" className="text-amber-400 font-semibold hover:text-amber-300 transition-colors">
                 Create one
               </Link>
             </p>
-
-            {/* Unsplash credit — mobile only, shown inside form panel at the bottom */}
-            {bg.photographer && !bg.loading && (
-              <a
-                href={`${bg.photographerUrl}?utm_source=xplora&utm_medium=referral`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="lg:hidden block text-center text-[10px] text-white/20 hover:text-white/40 transition-colors mt-5"
-              >
-                Photo by {bg.photographer} · Unsplash
-              </a>
-            )}
           </div>
         </div>
       </div>
