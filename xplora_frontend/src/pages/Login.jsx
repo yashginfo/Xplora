@@ -148,7 +148,7 @@ const Login = () => {
         }}
       />
       {/* Mobile overlay — darker for readability */}
-      <div className="absolute inset-0 z-0 bg-black/55 lg:hidden" />
+      <div className="absolute inset-0 z-0 bg-black/30 lg:hidden" />
       {/* Desktop overlay — lighter */}
       <div className="absolute inset-0 z-0 bg-black/35 hidden lg:block" />
 

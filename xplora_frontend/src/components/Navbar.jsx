@@ -14,7 +14,6 @@ const Navbar = () => {
 
   const [myTrips, logoutText] = useTranslate(["My Trips", "Logout"]);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = "hidden";
@@ -94,35 +93,27 @@ const Navbar = () => {
 
         {/* Mobile right side */}
         <div className="flex md:hidden items-center gap-3">
-          {/* User avatar — always visible */}
           <div className="w-7 h-7 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0">
             <span className="text-amber-400 text-xs font-bold">
               {(user?.name || "T")[0].toUpperCase()}
             </span>
           </div>
 
-          {/* Hamburger button */}
           <button
             onClick={() => setMenuOpen((o) => !o)}
             className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-white/5 border border-white/10 transition-all"
             aria-label="Toggle menu"
           >
             <span
-              className={`block w-4.5 h-px bg-white/70 transition-all duration-300 origin-center ${
-                menuOpen ? "rotate-45 translate-y-0.75" : ""
-              }`}
+              className={`block h-px bg-white/70 transition-all duration-300 origin-center ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`}
               style={{ width: "18px" }}
             />
             <span
-              className={`block h-px bg-white/70 transition-all duration-300 ${
-                menuOpen ? "opacity-0 w-0" : "w-4.5"
-              }`}
-              style={{ width: menuOpen ? "0" : "18px" }}
+              className={`block h-px bg-white/70 transition-all duration-300 ${menuOpen ? "opacity-0 w-0" : ""}`}
+              style={{ width: "18px" }}
             />
             <span
-              className={`block h-px bg-white/70 transition-all duration-300 origin-center ${
-                menuOpen ? "-rotate-45 -translate-y-0.75" : ""
-              }`}
+              className={`block h-px bg-white/70 transition-all duration-300 origin-center ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`}
               style={{ width: "18px" }}
             />
           </button>
@@ -137,39 +128,40 @@ const Navbar = () => {
         />
       )}
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — fixed height layout with logout always at bottom */}
       <div
-        className={`fixed top-14 right-0 z-50 w-72 max-w-[90vw] h-[calc(100vh-3.5rem)] md:hidden flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed top-14 right-0 z-50 w-72 max-w-[90vw] md:hidden flex flex-col transition-transform duration-300 ease-out ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
         style={{
+          height: "calc(100vh - 3.5rem)",
           background: "rgba(15,12,8,0.97)",
           backdropFilter: "blur(20px)",
           borderLeft: "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        {/* User info */}
+        {/* User info — fixed at top */}
         <div
-          className="px-5 py-5 border-b"
+          className="px-5 py-4 border-b shrink-0"
           style={{ borderColor: "rgba(255,255,255,0.08)" }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0">
               <span className="text-amber-400 text-sm font-bold">
                 {(user?.name || "T")[0].toUpperCase()}
               </span>
             </div>
-            <div>
-              <p className="text-white/80 text-sm font-semibold">
+            <div className="min-w-0">
+              <p className="text-white/80 text-sm font-semibold truncate">
                 {user?.name || "Traveller"}
               </p>
-              <p className="text-white/30 text-xs">{user?.email || ""}</p>
+              <p className="text-white/30 text-xs truncate">{user?.email || ""}</p>
             </div>
           </div>
         </div>
 
-        {/* Nav links */}
-        <div className="flex flex-col flex-1 px-3 py-4 gap-1 overflow-y-auto min-h-0">
+        {/* Nav links — scrollable middle section */}
+        <div className="flex flex-col flex-1 min-h-0 overflow-y-auto px-3 py-3 gap-1">
           <button
             onClick={() => handleNav("/dashboard")}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all text-left"
@@ -198,7 +190,7 @@ const Navbar = () => {
             Surprise Me
           </button>
 
-          {/* Language selector — full width in drawer */}
+          {/* Language selector — limited height so it doesn't push logout off */}
           <div
             className="mt-3 px-1 pt-3 border-t"
             style={{ borderColor: "rgba(255,255,255,0.08)" }}
@@ -206,12 +198,17 @@ const Navbar = () => {
             <p className="text-[10px] font-bold tracking-widest text-white/20 uppercase px-3 mb-2">
               Language
             </p>
-            <LanguageSelector mobileFullWidth />
+            <div className="max-h-36 overflow-y-auto">
+              <LanguageSelector mobileFullWidth />
+            </div>
           </div>
         </div>
 
-        {/* Logout at bottom */}
-        <div className="px-3 py-4 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        {/* Logout — always pinned at bottom */}
+        <div
+          className="px-3 py-4 border-t shrink-0"
+          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+        >
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/8 transition-all"
