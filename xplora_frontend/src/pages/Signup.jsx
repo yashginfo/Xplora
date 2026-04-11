@@ -171,7 +171,7 @@ const Signup = () => {
         }}
       />
       {/* Mobile overlay */}
-      <div className="absolute inset-0 z-0 bg-black/30 lg:hidden" />
+      <div className="absolute inset-0 z-0 bg-black/20 lg:hidden" />
       {/* Desktop overlay */}
       <div className="absolute inset-0 z-0 bg-black/35 hidden lg:block" />
 
