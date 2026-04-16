@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import SharedTrip from "./pages/SharedTrip";
 import MyTrips from "./pages/MyTrips";
 import NotFound from "./pages/NotFound";
+import ExpertChat from "./pages/ExpertChat";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -29,6 +30,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/shared/:uuid" element={<SharedTrip />} />
+        <Route path="/expert-chat" element={<ProtectedRoute><ExpertChat /></ProtectedRoute>} />
         {/* Catch-all — must always be last */}
         <Route path="*" element={<NotFound />} />
       </Routes>
